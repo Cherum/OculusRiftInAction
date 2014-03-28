@@ -20,10 +20,10 @@ class GLprogram {
 public:
 	GLprogram();
 
-	bool wasCalled;
+	bool m_wasCalled;
 		
 	void open(const string & name);
-	void open(const string & vertexShaderFile, const string & fragmentShaderFile);
+	void open(const string & m_vertexShaderFile, const string & fragmentShaderFile);
 	void use();
 	void close();
 
@@ -37,20 +37,20 @@ public:
 	void uniform2f(const string & uniform, const glm::vec2 & vec) const;
 
 protected:
-	GLuint vertexShader;
-	GLuint fragmentShader;
-	GLuint program;
+	GLuint m_vertexShader;
+	GLuint m_fragmentShader;
+	GLuint m_program;
 
 	typedef map<string, GLint> Map;
-	Map attributes;
-	Map uniforms;
+	Map m_attributes;
+	Map m_uniforms;
 
 	static string loadResource(const string& in);
 
 	static string getProgramLog(GLuint program);
 	static string getShaderLog(GLuint shader);
 	static GLuint compileShader(GLuint type, const string shaderSrc);
-	static GLuint linkProgram(GLuint vertexShader, GLuint fragmentShader);
+	static GLuint linkProgram(GLuint m_vertexShader, GLuint fragmentShader);
 };
 
 #endif // GLprogram_h__

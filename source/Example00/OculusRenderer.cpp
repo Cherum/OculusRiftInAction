@@ -83,7 +83,7 @@ void OculusRenderer::initializeGL(){
 	// Since QGLFunctions is bugged, use glew for openGL access
 	glewInit();
 
-	initOpenGL();
+	setGlValues();
 	loadShaders();
 
 	// Use Window Resolution for correct distortion
@@ -104,7 +104,7 @@ void OculusRenderer::resizeGL(int w, int h){
 //
 void OculusRenderer::paintGL(){
 	draw();
-	update();
+	//update();	// TODO debug
 }
 //
 void OculusRenderer::loadCoinScene(){
@@ -145,10 +145,6 @@ void OculusRenderer::loadCoinScene(){
 
 	m_xMultiplier = 1;
 	m_yMultiplier = 1;
-	// m_perscam->viewall() sets 
-	// m_nearclip = 2.32616 
-	// m_farclip = 5.79026 
-	// position ( 0 / 0 / 4.05821 )
 
 	m_coinNearClip = 2.32616;
 	m_coinFarClip = 5.79026;
@@ -209,7 +205,7 @@ void OculusRenderer::initOculus(){
 	m_stereoConfig.SetStereoMode(StereoMode::Stereo_None);
 }
 // 
-void OculusRenderer::initOpenGL(){
+void OculusRenderer::setGlValues(){
 	// Enable the zbuffer test
 	glEnable(GL_DEPTH_TEST);
 	glLineWidth(2.0f);
@@ -279,37 +275,31 @@ void OculusRenderer::keyPressEvent( QKeyEvent * event ){
 		case Qt::Key_P:
 			m_renderMode = static_cast<Mode>((m_renderMode + 1) % 3);
 			if (m_renderMode == MONO) {
+
 				m_projection = glm::perspective(60.0f,
-					(float)m_hmdInfo.HResolution / (float)m_hmdInfo.VResolution, m_nearclip, m_farclip);
+					(float) m_hmdInfo.HResolution / (float) m_hmdInfo.VResolution, m_nearclip, m_farclip);
 
-				m_coinProjection = glm::perspective(60.0f,
-					(float)m_hmdInfo.HResolution / (float)m_hmdInfo.VResolution, m_coinNearClip, m_coinFarClip);
-
+				////
 				m_perscam->heightAngle = glm::radians(60.0f);
-				m_perscam->aspectRatio = (float)m_hmdInfo.HResolution / (float)m_hmdInfo.VResolution;
-
+				m_perscam->aspectRatio = (float) m_hmdInfo.HResolution / (float) m_hmdInfo.VResolution;
 				m_stereoConfig.SetStereoMode(StereoMode::Stereo_None);
 			} else if (m_renderMode == STEREO) {
+
 				m_projection = glm::perspective(60.0f,
-					(float)m_hmdInfo.HResolution / 2.0f / (float)m_hmdInfo.VResolution, m_nearclip, m_farclip);
+					(float) m_hmdInfo.HResolution / 2.0f / (float) m_hmdInfo.VResolution, m_nearclip, m_farclip);
 
-				m_coinProjection = glm::perspective(60.0f,
-					(float)m_hmdInfo.HResolution / 2.0f / (float)m_hmdInfo.VResolution, m_coinNearClip, m_coinFarClip);
-
+				////
 				m_perscam->heightAngle = glm::radians(60.0f);
 				m_perscam->aspectRatio = (float)m_hmdInfo.HResolution / 2.0f / (float)m_hmdInfo.VResolution;
-
 				m_stereoConfig.SetStereoMode(StereoMode::Stereo_LeftRight_Multipass);
 			} else if (m_renderMode == STEREO_DISTORT) {
+
 				m_projection = glm::perspective(m_stereoConfig.GetYFOVDegrees(),
-					(float)m_hmdInfo.HResolution / 2.0f / (float)m_hmdInfo.VResolution, m_nearclip, m_farclip);
+					(float) m_hmdInfo.HResolution / 2.0f / (float) m_hmdInfo.VResolution, m_nearclip, m_farclip);
 
-				m_coinProjection = glm::perspective(m_stereoConfig.GetYFOVDegrees(),
-					(float)m_hmdInfo.HResolution / 2.0f / (float)m_hmdInfo.VResolution, m_coinNearClip, m_coinFarClip);
-
+				////
 				m_perscam->heightAngle = m_stereoConfig.GetYFOVRadians();
-				m_perscam->aspectRatio = (float)m_hmdInfo.HResolution / 2.0f / (float)m_hmdInfo.VResolution;
-
+				m_perscam->aspectRatio = (float) m_hmdInfo.HResolution / 2.0f / (float) m_hmdInfo.VResolution;
 				m_stereoConfig.SetStereoMode(StereoMode::Stereo_LeftRight_Multipass);
 			}
 			break;
@@ -386,7 +376,7 @@ void OculusRenderer::draw() {
 		m_vpRegion.setViewportPixels(0, 0, m_hmdInfo.HResolution, m_hmdInfo.VResolution);
 
 		glViewport(0, 0, m_hmdInfo.HResolution, m_hmdInfo.VResolution);
-		renderScene(glm::vec3(), glm::vec3(), m_stereoConfig.GetEyeRenderParams(StereoEye_Center)); 
+		renderCubeScene(glm::vec3(), glm::vec3(), m_stereoConfig.GetEyeRenderParams(StereoEye_Center)); 
 		renderCoinScene(glm::vec3(), glm::vec3(), m_stereoConfig.GetEyeRenderParams(StereoEye_Center));
 	} else {
 		// If we get here, we're rendering in stereo, so we have to render our output twice
@@ -413,7 +403,7 @@ void OculusRenderer::draw() {
 
 			glViewport(0, 0, m_fboWidth, m_fboHeight);
 			glBindFramebuffer(GL_FRAMEBUFFER, m_frameBuffer);
-			renderScene(eyeProjectionOffset, eyeModelviewOffset, m_stereoConfig.GetEyeRenderParams(eye));
+			renderCubeScene(eyeProjectionOffset, eyeModelviewOffset, m_stereoConfig.GetEyeRenderParams(eye));
 			renderCoinScene(eyeProjectionOffset, eyeModelviewOffset, m_stereoConfig.GetEyeRenderParams(eye));
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -500,7 +490,7 @@ void OculusRenderer::draw() {
 	} // if
 }
 //
-void OculusRenderer::renderScene(const glm::vec3 & m_projectionOffset, const glm::vec3 & m_modelviewOffset, const StereoEyeParams eyeParam) {
+void OculusRenderer::renderCubeScene(const glm::vec3 & m_projectionOffset, const glm::vec3 & m_modelviewOffset, const StereoEyeParams eyeParam) {
 	glm::mat4 sceneProjection = glm::translate(glm::mat4(), m_projectionOffset) * m_projection;
 	glm::mat4 sceneModelview = glm::translate(glm::mat4(), m_modelviewOffset) * m_modelview;
 
@@ -556,13 +546,6 @@ void OculusRenderer::renderCoinScene(const glm::vec3 & m_projectionOffset, const
 	///////////////////////////////////////////////////////////////////////////////////////////
 	//m_perscam->viewAll(m_root, m_vpRegion);
 	// sets m_nearclip 2.32616 m_farclip 5.79026 position ( 0 / 0 / 4.05821 )
-	//m_perscam->nearDistance = 2.32616;
-	//m_perscam->farDistance = 5.79026;
-	//qDebug() << "nearDistance|farDistance" << m_perscam->nearDistance.getValue() << "|" << m_perscam->farDistance.getValue();
-	//m_perscam->nearDistance = 2.32616;
-	//m_perscam->farDistance = 5.79026;
-	//glBindFramebuffer(GL_FRAMEBUFFER, m_frameBufferTest);
-	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	m_sceneManager->setViewportRegion(m_vpRegion);
 	m_sceneManager->render(false, false);

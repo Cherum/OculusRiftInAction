@@ -14,14 +14,14 @@ varying vec2 vTexCoord;
 
 
 float lengthSquared(vec2 point) {
-    point = point * point;
-    return point.x + point.y;
+	point = point * point;
+	return point.x + point.y;
 }
 
 float distortionFactor(vec2 point) {
-    float rSq = lengthSquared(point);
-    float factor =  (K[0] + K[1] * rSq + K[2] * rSq * rSq + K[3] * rSq * rSq * rSq);
-    return factor;
+	float rSq = lengthSquared(point);
+	float factor =  (K[0] + K[1] * rSq + K[2] * rSq * rSq + K[3] * rSq * rSq * rSq);
+	return factor;
 }
 
 void main()
@@ -29,7 +29,7 @@ void main()
 	// we recieve the texture coordinate in 'lens space'.  i.e. the 2d 
 	// coordinates represent the position of the texture coordinate using the 
 	// lens center as an offset
-    vec2 distorted = vTexCoord * distortionFactor(vTexCoord);
+	vec2 distorted = vTexCoord * distortionFactor(vTexCoord);
 
 	// In order to use the (now distorted) texture coordinates with the OpenGL 
 	// sample object, we need to put them back into texture space.  
@@ -62,7 +62,7 @@ void main()
 		gl_FragColor = vec4(0.5, 0.0, 0.0, 1.0);
 	} else {
 		gl_FragColor = texture2D(sampler, textureCoord);
-	    //gl_FragColor = vec4(abs(textureCoord), 0.0, 1.0);
+		//gl_FragColor = vec4(abs(textureCoord), 0.0, 1.0);
 	}
 }
 

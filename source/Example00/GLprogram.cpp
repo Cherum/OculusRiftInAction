@@ -1,6 +1,4 @@
 #include <GL/glew.h>
-//#include <sstream>
-//#include <fstream>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
@@ -21,82 +19,82 @@
 using namespace std;
 
 GLprogram::GLprogram() 
-	: vertexShader(0)
-	, fragmentShader(0)
-	, program(0)
-	, wasCalled(false) { }
+	: m_vertexShader(0)
+	, m_fragmentShader(0)
+	, m_program(0)
+	, m_wasCalled(false) { }
 
 void GLprogram::open(const string & name) {
 	// load shaders only once
-	if(!wasCalled){
+	if(!m_wasCalled){
 		cout << "open shader " << name << "\n";
 		open(name + ".vs", name + ".fs");
-		wasCalled = true;
+		m_wasCalled = true;
 	}
 }
 
-void GLprogram::open(const string & vertexShaderFile, const string & fragmentShaderFile) {
-	string source = loadResource(vertexShaderFile);
-	vertexShader = compileShader(GL_VERTEX_SHADER, source);
+void GLprogram::open(const string & m_vertexShaderFile, const string & fragmentShaderFile) {
+	string source = loadResource(m_vertexShaderFile);
+	m_vertexShader = compileShader(GL_VERTEX_SHADER, source);
 	source = loadResource(fragmentShaderFile);
-	fragmentShader = compileShader(GL_FRAGMENT_SHADER, source);
-	program = linkProgram(vertexShader, fragmentShader);
-	attributes.clear();
+	m_fragmentShader = compileShader(GL_FRAGMENT_SHADER, source);
+	m_program = linkProgram(m_vertexShader, m_fragmentShader);
+	m_attributes.clear();
 	GLchar GL_OUTPUT_BUFFER[8192];
 	int numVars;
-	glGetProgramiv(program, GL_ACTIVE_ATTRIBUTES, &numVars);
+	glGetProgramiv(m_program, GL_ACTIVE_ATTRIBUTES, &numVars);
 	for (int i = 0; i < numVars; ++i) {
 		GLsizei bufSize = 8192;
 		GLsizei size; GLenum type;
-		glGetActiveAttrib(program, i, bufSize, &bufSize, &size, &type, GL_OUTPUT_BUFFER);
+		glGetActiveAttrib(m_program, i, bufSize, &bufSize, &size, &type, GL_OUTPUT_BUFFER);
 		string name = string(GL_OUTPUT_BUFFER, bufSize);
-		GLint location = glGetAttribLocation(program, name.c_str());
-		attributes[name] = location;
+		GLint location = glGetAttribLocation(m_program, name.c_str());
+		m_attributes[name] = location;
 		cout << "Found attribute " << name << " at location " << location << endl;
 	}
 
-	uniforms.clear();
-	glGetProgramiv(program, GL_ACTIVE_UNIFORMS, &numVars);
+	m_uniforms.clear();
+	glGetProgramiv(m_program, GL_ACTIVE_UNIFORMS, &numVars);
 	for (int i = 0; i < numVars; ++i) {
 		GLsizei bufSize = 8192;
 		GLsizei size;
 		GLenum type;
-		glGetActiveUniform(program, i, bufSize, &bufSize, &size, &type, GL_OUTPUT_BUFFER);
+		glGetActiveUniform(m_program, i, bufSize, &bufSize, &size, &type, GL_OUTPUT_BUFFER);
 		string name = string(GL_OUTPUT_BUFFER, bufSize);
-		GLint location = glGetUniformLocation(program, name.c_str());
-		uniforms[name] = location;
+		GLint location = glGetUniformLocation(m_program, name.c_str());
+		m_uniforms[name] = location;
 		cout << "Found uniform " << name << " at location " << location << endl;
 	}
 }
 
 void GLprogram::use() {
-	glUseProgram(program);
+	glUseProgram(m_program);
 }
 
 void GLprogram::close() {
-	if (0 != program) {
-		glDeleteProgram(program);
-		program = 0;
+	if (0 != m_program) {
+		glDeleteProgram(m_program);
+		m_program = 0;
 	}
-	if (0 != vertexShader) {
-		glDeleteShader(vertexShader);
+	if (0 != m_vertexShader) {
+		glDeleteShader(m_vertexShader);
 	}
-	if (0 != fragmentShader) {
-		glDeleteShader(fragmentShader);
+	if (0 != m_fragmentShader) {
+		glDeleteShader(m_fragmentShader);
 	}
 }
 
 GLint GLprogram::getUniformLocation(const string & uniform) const {
-	auto itr = uniforms.find(uniform);
-	if (uniforms.end() != itr) {
+	auto itr = m_uniforms.find(uniform);
+	if (m_uniforms.end() != itr) {
 		return itr->second;
 	}
 	return -1;
 }
 
 GLint GLprogram::getAttributeLocation(const string & attribute) const {
-	Map::const_iterator itr = attributes.find(attribute);
-	if (attributes.end() != itr) {
+	Map::const_iterator itr = m_attributes.find(attribute);
+	if (m_attributes.end() != itr) {
 		return itr->second;
 	}
 	return -1;
@@ -175,10 +173,10 @@ GLuint GLprogram::compileShader(GLuint type, const string shaderSrc) {
 	return shader;
 }
 	
-GLuint GLprogram::linkProgram(GLuint vertexShader, GLuint fragmentShader) {
+GLuint GLprogram::linkProgram(GLuint m_vertexShader, GLuint fragmentShader) {
 	GLuint program = glCreateProgram();
 	assert(program != 0);
-	glAttachShader(program, vertexShader);
+	glAttachShader(program, m_vertexShader);
 	glAttachShader(program, fragmentShader);
 	// Link the newProgram
 	glLinkProgram(program);

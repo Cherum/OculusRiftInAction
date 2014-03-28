@@ -44,13 +44,11 @@ int main(int argc, char ** argv) {
 
 	// widget
 	renderer.show();
-	app.exec();
+	return app.exec();
 
 	 // Clean up resources.
 	//root->unref();
 	//delete viewer;
-	/*SIM::Coin3D::Quarter::Quarter::clean();
-	return 0;*/
 
 	//return exmpl.run();
 }
