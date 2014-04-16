@@ -1,19 +1,22 @@
 OculusRiftExamples
 ==================
 
-Example code for using the Oculus Rift
+Example code for using the Oculus Rift with Coin3D
 
 # Instructions for building (on Linux)
 
-	git clone https://github.com/OculusCommunitySDK/OculusRiftExamples.git OculusRiftExamples
-	cd OculusRiftExamples
-	git submodule init
-	git submodule update
+	"git clone https://github.com/OculusCommunitySDK/OculusRiftExamples.git OculusRiftExamples"
+	"cd OculusRiftExamples"
+	"git submodule init"
+	"git submodule update"
+	
+	Copy Coin in /libraries/Coin_3.1.3_vs10 and coin3d.dll to build/Debug (sorry, was too lazy to find out how to do this with Cmake) 
+	
 	mkdir build && cd build
 	cmake .. -G "Unix Makefiles"
 	make -j 4
 	./source/Example00/Example00
-
+	
 # Other platforms
 
 The steps are the same until the CMake invokation.  Instead of the "Unix Makefiles" generator, you need to specify the 
@@ -41,5 +44,9 @@ For this I was using the CMake GUI rather than the command line, but it shouldn'
 ## On OSX 10.8.5 with XCode 5.0
 
 * "Xcode"
+
+# Troubleshooting
+* If you get an error about missing Qt .dlls add ../[QT_VERSION]/bin to your PATH
+
 
  

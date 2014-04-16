@@ -2,9 +2,11 @@ cmake_minimum_required(VERSION 2.8)
 
 project(CoinOculus)
 
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
+#set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 
+#SET(CMAKE_PREFIX_PATH C:/Qt/5.2.1_msvc2010_opengl/5.2.1/msvc2010_opengl)	
+SET(CMAKE_PREFIX_PATH C:/Qt/5.2.1/5.2.1/msvc2010_opengl)	
 find_package(Qt5 REQUIRED Core Concurrent Declarative Gui Network OpenGL Script Sql Test Xml XmlPatterns Widgets)
 #find_package(OpenGL)
 
