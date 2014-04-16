@@ -124,7 +124,6 @@ protected:
 	glm::mat4 m_modelview;
 
 	void initializeGL();
-	void resizeGL(int w, int h);
 	void paintGL();
 
 	void setGlValues();

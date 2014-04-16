@@ -5,8 +5,8 @@ project(CoinOculus)
 #set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 
-#SET(CMAKE_PREFIX_PATH C:/Qt/5.2.1_msvc2010_opengl/5.2.1/msvc2010_opengl)	
-SET(CMAKE_PREFIX_PATH C:/Qt/5.2.1/5.2.1/msvc2010_opengl)	
+SET(CMAKE_PREFIX_PATH C:/Qt/5.1.1/msvc2010_opengl)	
+#SET(CMAKE_PREFIX_PATH C:/Qt/5.2.1/5.2.1/msvc2010_opengl)	
 find_package(Qt5 REQUIRED Core Concurrent Declarative Gui Network OpenGL Script Sql Test Xml XmlPatterns Widgets)
 #find_package(OpenGL)
 
@@ -62,6 +62,26 @@ LINK_DIRECTORIES(
 	
 ADD_EXECUTABLE(OculusTestGL source/Example00/Example00.cpp ${IPOCTLG_SRC}  ${IPOCTLG_MOC} ${IPOCTLG_UI})
 TARGET_LINK_LIBRARIES(OculusTestGL  
+	Qt5::Declarative
+	Qt5::Script
+	Qt5::Xml
+	Qt5::OpenGL
+	Qt5::Widgets
+	Qt5::Gui
+	Qt5::Core
+	
+	${COIN3D_LIBRARIES}
+	
+	opengl32 
+	glu32
+	debug libovrd.lib
+	optimized libovr.lib
+	winmm.lib
+	glew
+)
+
+ADD_EXECUTABLE(OculusTestBugExample MinimalBuggingExample/main.cpp MinimalBuggingExample/main.h)
+TARGET_LINK_LIBRARIES(OculusTestBugExample  
 	Qt5::Declarative
 	Qt5::Script
 	Qt5::Xml

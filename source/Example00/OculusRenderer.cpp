@@ -70,7 +70,7 @@ OculusRenderer::OculusRenderer()
 	, m_farclip(100.0f) {
 
 	qDebug() << "Example00()";
-	initOculus();
+	
 }
 //
 OculusRenderer::~OculusRenderer() {
@@ -82,6 +82,8 @@ OculusRenderer::~OculusRenderer() {
 void OculusRenderer::initializeGL(){
 	// Since QGLFunctions is bugged, use glew for openGL access
 	glewInit();
+
+	initOculus();
 
 	setGlValues();
 	loadShaders();
@@ -97,14 +99,10 @@ void OculusRenderer::initializeGL(){
 	m_modelview = glm::lookAt(CAMERA, ORIGIN, UP);
 	m_projection = glm::perspective(60.0f, (float)m_hmdInfo.HResolution / (float)m_hmdInfo.VResolution, 0.1f, 100.f);
 }
-
-void OculusRenderer::resizeGL(int w, int h){
-	qDebug() << "resizeGL";
-}
 //
 void OculusRenderer::paintGL(){
 	draw();
-	//update();	// TODO debug
+	update();	// TODO debug
 }
 //
 void OculusRenderer::loadCoinScene(){
@@ -154,6 +152,7 @@ void OculusRenderer::loadCoinScene(){
 }
 //
 void OculusRenderer::initOculus(){
+	qDebug() << "Init Oculus";
 	// do the master initialization for the Oculus VR SDK
 	OVR::System::Init();
 
@@ -188,11 +187,21 @@ void OculusRenderer::initOculus(){
 		m_ovrSensor = *ovrManager->EnumerateDevices<SensorDevice>().CreateDevice();
 		if (m_ovrSensor) {
 			m_useTracker = true;
-			m_sensorFusion.AttachToSensor(m_ovrSensor);
+			bool wasAttached = m_sensorFusion.AttachToSensor(m_ovrSensor);
+			qDebug() << "Sensor attached:" << wasAttached;
+			qDebug() << "sensorFusion11" << m_sensorFusion.IsAttachedToSensor();
 		}
+		else {
+			qDebug() << "Sensor NOT attached!";
+		}
+
 		Ptr<HMDDevice> ovrHmd = *ovrManager->EnumerateDevices<HMDDevice>().CreateDevice();
 		if (ovrHmd) {
 			ovrHmd->GetDeviceInfo(&m_hmdInfo);
+			qDebug() << "ovrHmd info set";
+		}
+		else {
+			qDebug() << "ovrHmd info NOT set!";
 		}
 		// The HMDInfo structure contains everything we need for now, so no
 		// need to keep the device handle around
@@ -332,6 +341,7 @@ void OculusRenderer::update() {
 
 		// Fetch the pitch roll and yaw out of the m_sensorFusion device
 		glm::vec3 eulerAngles;
+		qDebug() << "sensorFusion" << m_sensorFusion.IsAttachedToSensor();
 		m_sensorFusion.GetOrientation().GetEulerAngles<Axis_X, Axis_Y, Axis_Z, Rotate_CW, Handed_R>(
 			&eulerAngles.x, &eulerAngles.y, &eulerAngles.z);
 
@@ -354,7 +364,7 @@ void OculusRenderer::update() {
 		// feeling lost in a void.  Having a fixed object in the center
 		// of the screen that you appear to be moving around should
 		// provide less immersion, which in this instance is better
-		m_modelview = glm::lookAt(CAMERA, ORIGIN, UP) * glm::mat4_cast(orientation);
+		//m_modelview = glm::lookAt(CAMERA, ORIGIN, UP) * glm::mat4_cast(orientation);
 	} else {
 		// In the absence of head tracker information, we want to slowly
 		// rotate the cube so that the animation of the scene is apparent

@@ -44,7 +44,7 @@ int main(int argc, char ** argv) {
 
 	// widget
 	renderer.show();
-	return app.exec();
+	app.exec();
 
 	 // Clean up resources.
 	//root->unref();
